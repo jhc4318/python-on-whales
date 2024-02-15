@@ -739,6 +739,15 @@ def test_kill_nothing(ctr_client: DockerClient):
         assert set_of_containers == set(ctr_client.ps())
 
 
+@patch("python_on_whales.components.container.cli_wrapper.run")
+def test_start_detach_keys(run_mock: Mock):
+    docker.start("ctr_name", detach_keys="a,b")
+    run_mock.assert_called_once_with(
+        docker.client_config.docker_cmd
+        + ["container", "start", "--detach-keys", "a,b", "ctr_name"]
+    )
+
+
 @pytest.mark.parametrize("ctr_client", ["docker", "podman"], indirect=True)
 def test_exec_env(ctr_client: DockerClient):
     with ctr_client.run("ubuntu", ["sleep", "infinity"], detach=True, remove=True) as c:
@@ -755,6 +764,16 @@ def test_exec_env_file(ctr_client: DockerClient, tmp_path: Path):
     with ctr_client.run("ubuntu", ["sleep", "infinity"], detach=True, remove=True) as c:
         result = c.execute(["bash", "-c", "echo $DODO"], env_files=[env_file])
     assert result == "dada"
+
+
+@patch("python_on_whales.components.container.cli_wrapper.run")
+def test_exec_detach_keys(run_mock: Mock):
+    docker.execute("ctr_name", ["cmd"], detach_keys="a,b")
+    run_mock.assert_called_once_with(
+        docker.client_config.docker_cmd
+        + ["exec", "--detach-keys", "a,b", "ctr_name", "cmd"],
+        tty=False,
+    )
 
 
 @pytest.mark.parametrize("ctr_client", ["docker", "podman"], indirect=True)

@@ -273,6 +273,7 @@ class Container(ReloadableObjectFromJson):
         self,
         command: List[str],
         detach: bool = False,
+        detach_keys: Optional[str] = None,
         envs: Dict[str, str] = {},
         env_files: Union[ValidPath, List[ValidPath]] = [],
         interactive: bool = False,
@@ -291,6 +292,7 @@ class Container(ReloadableObjectFromJson):
             self,
             command,
             detach,
+            detach_keys,
             envs,
             env_files,
             interactive,
@@ -392,14 +394,20 @@ class Container(ReloadableObjectFromJson):
         )
 
     def start(
-        self, attach: bool = False, interactive: bool = False, stream: bool = False
+        self,
+        attach: bool = False,
+        detach_keys: Optional[str] = None,
+        interactive: bool = False,
+        stream: bool = False,
     ) -> Union[None, str, Iterable[Tuple[str, bytes]]]:
         """Starts this container.
 
         See the [`docker.container.start`](../sub-commands/container.md#start) command for
         information about the arguments.
         """
-        return ContainerCLI(self.client_config).start(self, attach, interactive, stream)
+        return ContainerCLI(self.client_config).start(
+            self, attach, detach_keys, interactive, stream
+        )
 
     def stop(self, time: Union[int, timedelta] = None) -> None:
         """Stops this container.
@@ -832,6 +840,7 @@ class ContainerCLI(DockerCLICaller):
         container: ValidContainer,
         command: List[str],
         detach: bool = False,
+        detach_keys: Optional[str] = None,
         envs: Dict[str, str] = {},
         env_files: Union[ValidPath, List[ValidPath]] = [],
         interactive: bool = False,
@@ -850,6 +859,7 @@ class ContainerCLI(DockerCLICaller):
             command: The command to execute.
             detach: if `True`, returns immediately with `None`. If `False`,
                 returns the command stdout as string.
+            detach_keys: Override the key sequence for detaching a container.
             envs: Set environment variables
             env_files: Read one or more files of environment variables
             interactive: Leave stdin open during the duration of the process
@@ -889,6 +899,7 @@ class ContainerCLI(DockerCLICaller):
         full_cmd = self.docker_cmd + ["exec"]
 
         full_cmd.add_flag("--detach", detach)
+        full_cmd.add_simple_arg("--detach-keys", detach_keys)
 
         full_cmd.add_args_list("--env", format_dict_for_cli(envs))
         full_cmd.add_args_list("--env-file", env_files)
@@ -1703,6 +1714,7 @@ class ContainerCLI(DockerCLICaller):
         self,
         containers: Union[ValidContainer, List[ValidContainer]],
         attach: bool = False,
+        detach_keys: Optional[str] = None,
         interactive: bool = False,
         stream: bool = False,
     ) -> Union[None, str, Iterable[Tuple[str, bytes]]]:
@@ -1714,6 +1726,7 @@ class ContainerCLI(DockerCLICaller):
         Parameters:
             containers: One or a list of containers.
             attach: Attach stdout/stderr and forward signals.
+            detach_keys: Override the key sequence for detaching a container.
             interactive: Attach stdin (ensure it is open).
             stream: Stream output as a generator.
         """
@@ -1730,6 +1743,7 @@ class ContainerCLI(DockerCLICaller):
             )
         full_cmd = self.docker_cmd + ["container", "start"]
         full_cmd.add_flag("--attach", attach)
+        full_cmd.add_simple_arg("--detach-keys", detach_keys)
         full_cmd.add_flag("--interactive", interactive)
         full_cmd += containers
 
