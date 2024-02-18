@@ -748,6 +748,7 @@ def test_start_detach_keys(run_mock: Mock):
         + ["container", "start", "--detach-keys", "a,b", "ctr_name"]
     )
 
+
 def test_run_with_env_host(podman_client: DockerClient):
     try:
         os.environ["POW_TEST_FOO"] = "foo"
