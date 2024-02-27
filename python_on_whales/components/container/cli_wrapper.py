@@ -273,7 +273,6 @@ class Container(ReloadableObjectFromJson):
         self,
         command: List[str],
         detach: bool = False,
-        detach_keys: Optional[str] = None,
         envs: Dict[str, str] = {},
         env_files: Union[ValidPath, List[ValidPath]] = [],
         interactive: bool = False,
@@ -293,7 +292,6 @@ class Container(ReloadableObjectFromJson):
             self,
             command,
             detach,
-            detach_keys,
             envs,
             env_files,
             interactive,
@@ -844,7 +842,6 @@ class ContainerCLI(DockerCLICaller):
         container: ValidContainer,
         command: List[str],
         detach: bool = False,
-        detach_keys: Optional[str] = None,
         envs: Dict[str, str] = {},
         env_files: Union[ValidPath, List[ValidPath]] = [],
         interactive: bool = False,
@@ -864,7 +861,6 @@ class ContainerCLI(DockerCLICaller):
             command: The command to execute.
             detach: if `True`, returns immediately with `None`. If `False`,
                 returns the command stdout as string.
-            detach_keys: Override the key sequence for detaching a container.
             envs: Set environment variables
             env_files: Read one or more files of environment variables
             interactive: Leave stdin open during the duration of the process
@@ -1724,7 +1720,6 @@ class ContainerCLI(DockerCLICaller):
         self,
         containers: Union[ValidContainer, List[ValidContainer]],
         attach: bool = False,
-        detach_keys: Optional[str] = None,
         interactive: bool = False,
         stream: bool = False,
         detach_keys: Optional[str] = None,
@@ -1737,7 +1732,6 @@ class ContainerCLI(DockerCLICaller):
         Parameters:
             containers: One or a list of containers.
             attach: Attach stdout/stderr and forward signals.
-            detach_keys: Override the key sequence for detaching a container.
             interactive: Attach stdin (ensure it is open).
             stream: Stream output as a generator.
             detach_keys: Override the key sequence for detaching a container.
